@@ -1,0 +1,38 @@
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+import pandas as pd
+
+def sentiment_analysis(df):
+    # calculate subjectivity using textblob
+    def getSubjectivity(text):
+        return TextBlob(text).sentiment.subjectivity
+
+    # calculate polarity using textblob
+    def getPolarity(text):
+        return TextBlob(text).sentiment.polarity
+
+    # classify sentiment based on polarity score
+    def getAnalysis(score):
+        if score < 0:
+            return 'negative'
+        elif score == 0:
+            return 'neutral'
+        else:
+            return 'positive'
+
+    # create two new columns 'textblob_subjectivity' and 'textblob_polarity'
+    df['textblob_subjectivity'] = df['tokens'].apply(getSubjectivity)
+    df['textblob_polarity'] = df['tokens'].apply(getPolarity)
+    df['textblob_analysis'] = df['textblob_polarity'].apply(getAnalysis)
+
+    return df
+
+# Load data from text file into a list
+with open('sentiment_data.txt', 'r') as file:
+    data = file.readlines()
+
+# Create a DataFrame from the list
+df = pd.DataFrame({'tokens': [line.strip() for line in data]})
+
+# apply sentiment analysis using textblob on the 'df' dataframe
+df = sentiment_analysis(df)

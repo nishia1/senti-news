@@ -1,0 +1,45 @@
+from flair.models import TextClassifier
+from flair.data import Sentence
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Load data from text file into a list
+with open('sentiment_data.txt', 'r') as file:
+    data = file.readlines()
+
+# Create a DataFrame from the list
+df = pd.DataFrame({'tokens': [line.strip() for line in data]})
+
+# Load the pre-trained sentiment analysis model
+classifier = TextClassifier.load('en-sentiment')
+
+# Iterate over each row in the DataFrame # :( its really time consuming :(
+for index, row in df.iterrows():
+    text = row['tokens']  
+    sentence = Sentence(text)
+    
+    # Predict the sentiment for the current sentence
+    classifier.predict(sentence)
+    
+    # Get the predicted sentiment and score
+    sentiment = sentence.labels[0].value
+    score = sentence.labels[0].score
+    
+    # Update the DataFrame with the sentiment and score
+    df.loc[index, 'sentiment'] = sentiment
+    df.loc[index, 'score'] = score
+
+# Print the 'sentiment' column of the DataFrame
+print(df['sentiment'])
+# Count the occurrences of each sentiment label
+sentiment_counts = df['sentiment'].value_counts()
+
+# Plot a pie chart
+plt.pie(sentiment_counts.values, labels=sentiment_counts.index, autopct='%1.1f%%')
+plt.title('Sentiment Analysis Results')
+
+plt.show()
+
+# Print the number of counts for each sentiment
+for sentiment, count in sentiment_counts.items():
+    print(f"{sentiment}: {count}")
