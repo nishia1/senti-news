@@ -1,5 +1,6 @@
 # SentiNews
 bloomberg!!!
+
 folder 1: nlp-testing
 * all of the testing code and messing w diff libraries
 * (my baby & relearning py analysis tools - oops)
