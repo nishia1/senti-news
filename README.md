@@ -4,7 +4,7 @@ bloomberg!!!
 folder 1: nlp-testing
 * all of the testing code and messing w diff libraries
 * (my baby & relearning py analysis tools - oops)
-* see notes in read.me/file area (TBD based on analysis)
+* see notes in read.me/file area (will be added by christmas break, tbd)
 * still messing w some other libraries
 
 folder 2: senti_news_code :):):)
