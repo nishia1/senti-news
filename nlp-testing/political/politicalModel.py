@@ -144,7 +144,30 @@ def sentiment_analysis(data):
 #entiment_analysis(data)
 
 # test #3 - troudeau tarriff article from AP (considered libreral news source)
-file_path = "trodeauArticle.txt"
+#file_path = "trodeauArticle.txt"
+# Read the article
+#article = read_article(file_path)
+#data = [line for line in article.splitlines() if line.strip()]
+#result = classify_article(article)
+#print(result)
+#sentiment_analysis(data)
+
+# test 4 - Donald Trump says he thinks Pete Hegseth can get confirmed in NBC News interview
+# description of article
+# from nbc
+# President-elect Donald Trump acknowledged "people were a little bit concerned" about Fox News 
+# host Pete Hegseth's nomination to run the Pentagon, but Trump said he maintains confidence in his pick.
+#file_path = "peteDrinkingAppointment.txt"
+# Read the article
+#article = read_article(file_path)
+#data = [line for line in article.splitlines() if line.strip()]
+#result = classify_article(article)
+#print(result)
+#sentiment_analysis(data)
+
+# test 5  - With the Voting Rights Act facing more threats, advocates renew a push for state laws
+# from NPR (historical bipolar source)
+file_path = "votingRights.txt"
 # Read the article
 article = read_article(file_path)
 data = [line for line in article.splitlines() if line.strip()]

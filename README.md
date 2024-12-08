@@ -9,6 +9,6 @@ folder 1: nlp-testing
 
 folder 2: senti_news_code :):):)
 * aka deployable code
-* backend composed of flair (i think for subjectivity, its been ok, we'll keep using until i can employ widescale testing with 15 or more articles, currently at 10), politicalbert
+* backend composed of flair (i think for subjectivity, its been ok, we'll keep using until i can employ widescale testing with 15 or more articles, currently at 5), politicalbert
 * front-end (TBD)
 work in progress, check back early jan!! :)
