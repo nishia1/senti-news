@@ -4,9 +4,10 @@ import nltk
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from flair.models import TextClassifier
 from flair.data import Sentence
-import torch
+from textblob import TextBlob
 
 app = Flask(__name__)
+
 
 # initialize the flair sentiment classifier
 flair_classifier = TextClassifier.load('en-sentiment')
@@ -122,6 +123,23 @@ def analyze_article_route():
         'sentiment': sentiment_results,
         'bias': political_bias_results
     })
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    text = request.form['text']  
+    blob = TextBlob(text)       
+    sentiment = blob.sentiment.polarity  
+    subjectivity = blob.sentiment.subjectivity 
+
+    if sentiment > 0:
+        result = 'Positive' 
+    elif sentiment < 0:
+        result = 'Negative'
+    else:
+        result = 'Neutral'
+
+    return jsonify({'sentiment': result, 'polarity': sentiment, 'subjectivity': subjectivity})
+
 
 # run the app, and let the magic happen!
 if __name__ == '__main__':
