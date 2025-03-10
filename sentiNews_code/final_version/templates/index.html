@@ -6,38 +6,76 @@
     <title>senti-news</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* okay, time to make the page look awesome! */
+        /* Page styling */
         body {
             font-family: arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             color: #333;
         }
 
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-        }
-
+    
         h3 {
-            color: #4CAF50;
+            color: #9e1e02;
         }
 
-        /* container is like the cozy box for all our buttons and search stuff */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        /* Navigation Bar */
+        .navbar {
+            background-color: #9e1e02;
+            padding: 15px;
             text-align: center;
-            background-color: #fff;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            font-size: 18px;
+        }
+
+        .navbar a:hover {
+            background-color: #9e1e02;
+            border-radius: 5px;
+        }
+
+        /* Hero Section with Static Image */
+        .hero-section {
+        position: relative;
+        width: 100%;
+        height: 300px; 
+        background-image: url('https://motionarray.imgix.net/preview-221009-qr45Mrcxf8-high_0000.jpg?w=660&q=60&fit=max&auto=format');       
+         display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white; 
+        text-align: center;
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        opacity: 0.8; 
+}
+
+    
+
+        /* Separate boxed containers */
+        .box-container {
+            max-width: 800px;
+            margin: 20px auto;
             padding: 20px;
+            background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
-        /* buttons are ready to be clicked! */
+        /* Smooth Scroll Effect */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Button styles */
         button {
-            background-color: #4CAF50;
+            background-color: #9e1e02;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -49,10 +87,10 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #9e1e02;
         }
 
-        /* custom search input box: looking pretty sleek */
+        /* Input box */
         input[type="text"] {
             padding: 10px;
             font-size: 16px;
@@ -62,53 +100,8 @@
             border: 1px solid #ccc;
         }
 
-        /* article cards with some snazzy styles */
-        #articles {
-            margin-top: 30px;
-        }
-
-        .article {
-            background-color: #fff;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .article h3 {
-            margin-top: 0;
-            color: #333;
-        }
-
-        .article p {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .article button {
-            background-color: #2196F3;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-
-        .article button:hover {
-            background-color: #1E88E5;
-        }
-        .fetch-container {
-            margin-top: 40px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .fetch-container button {
-            width: 100%;
-            margin: 5px 0;
-        }
-
-.analysis-container {
+        /* Sentiment Analysis Layout */
+        .analysis-container {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -125,21 +118,6 @@
             margin-bottom: 10px;
         }
 
-        .input-area button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .input-area button:hover {
-            background-color: #45a049;
-        }
-
         .results-area {
             flex: 0 0 300px;
             background-color: #f9f9f9;
@@ -148,22 +126,9 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .results-area h4 {
-            color: #333;
-            margin-top: 0;
-        }
-
-        .results-area p {
-            font-size: 14px;
-            color: #666;
-        }
-        /* responsive stuff: gotta make it pretty on small screens too! */
+        /* Responsive */
         @media (max-width: 600px) {
-            input[type="text"] {
-                width: 100%;
-            }
-
-            button {
+            input[type="text"], button {
                 width: 100%;
                 margin: 5px 0;
             }
@@ -172,27 +137,35 @@
 </head>
 <body>
 
-    <h1>welcome to senti-news!</h1>
-    <div class="container">
-        <h3>Enter your own text for sentiment analysis:</h3>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/text">Sentiment Analysis</a>
+        <a href="/news">News Articles</a>
+    </div>
 
-        <!-- Flex container for input and result display -->
+    <!-- Hero Section with Image -->
+    <div class="hero-section">
+        <h1>welcome to senti-news!</h1>
+    </div>
+    
+
+
+
+    <div class="box-container" id="sentiment">
+        <h3>Enter your own text for sentiment analysis:</h3>
         <div class="analysis-container">
-            <!-- Text Input Area -->
             <div class="input-area">
                 <textarea id="userText" placeholder="Enter text for sentiment analysis..." rows="6"></textarea>
                 <button onclick="analyzeUserText()">Analyze Text</button>
             </div>
-
-            <!-- Results Area -->
             <div class="results-area" id="userAnalysisResult">
                 <h4>Analysis Results</h4>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <!-- selecting keywords for articles, 'cause we like to keep it neat! -->
+    <div class="box-container" id="articles">
         <p>select a keyword to fetch articles:</p>
         <button onclick="fetchArticles('politics')">fetch politics articles</button>
         <button onclick="fetchArticles('technology')">fetch technology articles</button>
@@ -200,16 +173,12 @@
         <button onclick="fetchArticles('economy')">fetch economy articles</button>
         <button onclick="fetchArticles('health')">fetch health articles</button>
 
-        <!-- or, you know, just type a search term -->
         <h3>or enter a custom search query:</h3>
         <input type="text" id="customQuery" placeholder="enter keyword or text" />
         <button onclick="fetchCustomArticles()">search</button>
     </div>
 
-    <div id="articles"></div>
-
     <script>
-        // fetching articles... here we gooo!
         function fetchArticles(query) {
             $.get('/fetch_articles', { query: query }, function(response) {
                 $('#articles').empty();
@@ -219,7 +188,6 @@
             });
         }
 
-        // custom search, just for you, buddy
         function fetchCustomArticles() {
             const query = $('#customQuery').val();
             if (query) {
@@ -234,37 +202,16 @@
             }
         }
 
-        // analyzing the article... time to get those results!
-        function analyzeArticle(content) {
-            $.post('/analyze_article', JSON.stringify({ content: content }), function(response) {
-                const sentiment = response.sentiment;
-                const bias = response.bias;
-                let sentimentResults = 'sentiment: <br>';
-                for (const [key, value] of Object.entries(sentiment)) {
-                    sentimentResults += key + ': ' + value + '<br>';
-                }
-                let biasResults = 'bias: <br>';
-                for (const [key, value] of Object.entries(bias)) {
-                    biasResults += key + ': ' + value + '<br>';
-                }
-                alert(sentimentResults + biasResults);
-            }, 'json');
-        }
-
-        function analyzeUserText() {
+function analyzeUserText() {
             const userText = $('#userText').val();
             if (userText) {
-                $.post('/analyze', {
-                    'text': userText
-                })
+                $.post('/analyze', { 'text': userText })
                 .done(function(response) {
-                    let result = `
-                        <div class="alert alert-info">
-                            <p><strong>Sentiment:</strong> ${response.sentiment}</p>
-                            <p><strong>Polarity:</strong> ${response.polarity}</p>
-                            <p><strong>Subjectivity:</strong> ${response.subjectivity}</p>
-                        </div>
-                    `;
+                    let result = `<div class="alert alert-info">
+                        <p><strong>Sentiment:</strong> ${response.sentiment}</p>
+                        <p><strong>Polarity:</strong> ${response.polarity}</p>
+                        <p><strong>Subjectivity:</strong> ${response.subjectivity}</p>
+                    </div>`;
                     $('#userAnalysisResult').html(result);
                 })
                 .fail(function(error) {
@@ -274,7 +221,8 @@
                 alert("Please enter some text for analysis.");
             }
         }
-    </script>
+
+    
     </script>
 
 </body>
