@@ -12,3 +12,5 @@ folder 2: senti_news_code :):):)
 * backend composed of flair (i think for subjectivity, its been ok, we'll keep using until i can employ widescale testing with 15 or more articles, currently at 5), politicalbert
 * front-end (TBD)
 work in progress, check back early jan!! :)
+
+gitignore file --> virtual env to run older python version 

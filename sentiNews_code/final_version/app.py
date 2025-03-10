@@ -33,7 +33,7 @@ labels = {0: "left", 1: "center", 2: "right"}
 # download necessary nltk data (just in case it's not downloaded)
 nltk.download('punkt')
 
-# your newsapi key - remember, don't share it in public!
+# newsapi key
 API_KEY = "caa85a9e10804fe6904d4325ad667d2b"
 url = "https://newsapi.org/v2/everything"
 
@@ -65,7 +65,7 @@ def fetch_articles(api_key, query="politics", language="en", num_articles=5):
         print(f"Failed to fetch articles: {response.status_code}")
         return []
 
-# function to split text into sentences (just a little helper for analysis)
+# function to split text into sentences
 def split_sentences(text):
     return nltk.sent_tokenize(text)
 
@@ -175,5 +175,9 @@ def analyze():
 
 
 
+    return jsonify({'sentiment': result, 'polarity': sentiment, 'subjectivity': subjectivity})
+
+
+# runs app
 if __name__ == '__main__':
     app.run(debug=True)

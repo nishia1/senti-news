@@ -6,7 +6,7 @@
     <title>senti-news</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* Page styling */
+        /* okay, time to make the page look awesome! */
         body {
             font-family: arial, sans-serif;
             background-color: #f4f4f4;
@@ -126,12 +126,28 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Responsive */
+        .results-area h4 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .results-area p {
+            font-size: 14px;
+            color: #666;
+        }
+
         @media (max-width: 600px) {
             input[type="text"], button {
                 width: 100%;
                 margin: 5px 0;
             }
+        }
+        
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -173,21 +189,31 @@
         <button onclick="fetchArticles('economy')">fetch economy articles</button>
         <button onclick="fetchArticles('health')">fetch health articles</button>
 
+        <!-- or, you know, just type a search term -->
         <h3>or enter a custom search query:</h3>
         <input type="text" id="customQuery" placeholder="enter keyword or text" />
         <button onclick="fetchCustomArticles()">search</button>
     </div>
 
     <script>
+        // fetching articles... here we gooo!
         function fetchArticles(query) {
             $.get('/fetch_articles', { query: query }, function(response) {
                 $('#articles').empty();
                 response.forEach(function(article) {
-                    $('#articles').append('<div class="article"><h3>' + article.title + '</h3><p>' + article.content + '</p><button onclick="analyzeArticle(\'' + article.content + '\')">analyze</button></div>');
+                    $('#articles').append(
+                        `<div class="article">
+                            <h3>${article.title}</h3>
+                            <p>${article.content}</p>
+                            <button onclick="analyzeArticle(this, '${article.content.replace(/'/g, "\\'")}')">Analyze</button>
+                            <div class="analysis-results" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px;"></div>
+                        </div>`
+                    );
                 });
             });
         }
 
+        // custom search, just for you, buddy
         function fetchCustomArticles() {
             const query = $('#customQuery').val();
             if (query) {
@@ -202,7 +228,95 @@
             }
         }
 
-function analyzeUserText() {
+        function analyzeArticle(button, content) {
+            let articleDiv = $(button).closest('.article');
+            let resultsDiv = articleDiv.find('.analysis-results');
+            let chartContainer = articleDiv.find('.chart-container');
+
+            // Ensure the chart container and canvas exist
+            if (chartContainer.length === 0) {
+                chartContainer = $("<div class='chart-container'><canvas></canvas></div>");
+                articleDiv.append(chartContainer);
+            }
+
+            let canvas = chartContainer.find("canvas")[0];  // Get the canvas element
+            if (!canvas) {
+                console.error("Canvas element not found for chart");
+                return;
+            }
+
+            // Ensure content is not empty
+            if (!content.trim()) {
+                resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
+                return;
+            }
+
+            $.ajax({
+                url: '/analyze_article',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify({ content: content.replace(/"/g, '\\"') }), // Escape double quotes
+                dataType: 'json',
+                success: function(response) {
+                    if (!response || !response.sentiment || !response.bias) {
+                        resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
+                        return;
+                    }
+
+                    const sentiment = response.sentiment;
+                    const bias = response.bias;
+
+                    let sentimentResults = '<strong>Sentiment:</strong><br>';
+                    for (const [key, value] of Object.entries(sentiment)) {
+                        sentimentResults += `${key}: ${value}<br>`;
+                    }
+
+                    let biasResults = '<strong>Bias:</strong><br>';
+                    for (const [key, value] of Object.entries(bias)) {
+                        biasResults += `${key}: ${value}<br>`;
+                    }
+
+                    resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
+
+                    // Destroy existing chart if it exists to prevent duplicates
+                    if (canvas.chartInstance) {
+                        canvas.chartInstance.destroy();
+                    }
+
+                    // Convert bias object values into an array
+                    const labels = Object.keys(bias);
+                    const dataValues = Object.values(bias);
+
+                    // Create a new chart
+                    canvas.chartInstance = new Chart(canvas, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Bias Score',
+                                data: dataValues,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function(error) {
+                    resultsDiv.html('<span style="color: red;">Error analyzing article.</span>').fadeIn();
+                    console.error("Analysis error:", error);
+                }
+            });
+        }
+        function analyzeUserText() {
             const userText = $('#userText').val();
             if (userText) {
                 $.post('/analyze', { 'text': userText })
@@ -225,5 +339,6 @@ function analyzeUserText() {
     
     </script>
 
+    </script>
 </body>
 </html>
