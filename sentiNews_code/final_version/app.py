@@ -24,7 +24,7 @@ labels = {0: "left", 1: "center", 2: "right"}
 nltk.download('punkt')
 
 # newsapi key
-API_KEY = "caa85a9e10804fe6904d4325ad667d2b"
+API_KEY = "abcd474fc97d43d1a970171a26a3cfaf"
 url = "https://newsapi.org/v2/everything"
 
 # function to fetch articles from newsapi
