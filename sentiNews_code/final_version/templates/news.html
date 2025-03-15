@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>senti-news</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
     <style>
-        /* okay, time to make the page look awesome! */
+        /* Styling for the page */
         body {
             font-family: arial, sans-serif;
             background-color: #f4f4f4;
@@ -15,7 +16,6 @@
             color: #333;
         }
 
-    
         h3 {
             color: #9e1e02;
         }
@@ -41,21 +41,19 @@
 
         /* Hero Section with Static Image */
         .hero-section {
-        position: relative;
-        width: 100%;
-        height: 300px; 
-        background-image: url('https://motionarray.imgix.net/preview-221009-qr45Mrcxf8-high_0000.jpg?w=660&q=60&fit=max&auto=format');       
-         display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white; 
-        text-align: center;
-        background-repeat: no-repeat;
-        background-size: 100% auto;
-        opacity: 0.8; 
-}
-
-    
+            position: relative;
+            width: 100%;
+            height: 300px; 
+            background-image: url('https://motionarray.imgix.net/preview-221009-qr45Mrcxf8-high_0000.jpg?w=660&q=60&fit=max&auto=format');       
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white; 
+            text-align: center;
+            background-repeat: no-repeat;
+            background-size: 100% auto;
+            opacity: 0.8; 
+        }
 
         /* Separate boxed containers */
         .box-container {
@@ -66,11 +64,6 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-        }
-
-        /* Smooth Scroll Effect */
-        html {
-            scroll-behavior: smooth;
         }
 
         /* Button styles */
@@ -142,7 +135,7 @@
                 margin: 5px 0;
             }
         }
-        
+
         .chart-container {
             width: 100%;
             max-width: 400px;
@@ -160,11 +153,6 @@
         <a href="/news">News Articles</a>
     </div>
 
-    <!-- Hero Section with Image -->
-    <div class="hero-section">
-        <h1>welcome to senti-news!</h1>
-    </div>
-
     <div class="box-container" id="articles">
         <p>select a keyword to fetch articles:</p>
         <button onclick="fetchArticles('politics')">fetch politics articles</button>
@@ -180,171 +168,127 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            function analyzeArticle(button, content) {
-                let articleDiv = $(button).closest('.article');
-                let resultsDiv = articleDiv.find('.analysis-results');
-                let chartContainer = articleDiv.find('.chart-container');
-
-                // Ensure the chart container and canvas exist
-                if (chartContainer.length === 0) {
-                    chartContainer = $("<div class='chart-container'><canvas></canvas></div>");
-                    articleDiv.append(chartContainer);
-                }
-
-                let canvas = chartContainer.find("canvas")[0];  
-
-                if (!canvas) {
-                    console.error("Canvas element not found for chart");
-                    return;
-                }
-
-                // Ensure content is not empty
-                if (!content.trim()) {
-                    resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
-                    return;
-                }
-
-                $.ajax({
-                    url: '/analyze_article',
-                    type: 'POST',
-                    contentType: "application/json",
-                    data: JSON.stringify({ content: content }), // Fixed escaping
-                    dataType: 'json',
-                    success: function(response) {
-                        if (!response || !response.sentiment || !response.bias) {
-                            resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
-                            return;
-                        }
-
-                        const sentiment = response.sentiment;
-                        const bias = response.bias;
-
-                        let sentimentResults = '<strong>Sentiment:</strong><br>';
-                        for (const [key, value] of Object.entries(sentiment)) {
-                            sentimentResults += `${key}: ${value}<br>`;
-                        }
-
-                        let biasResults = '<strong>Bias:</strong><br>';
-                        for (const [key, value] of Object.entries(bias)) {
-                            biasResults += `${key}: ${value}<br>`;
-                        }
-
-                        resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
-
-                        // Ensure Chart.js is loaded
-                        if (typeof Chart === "undefined") {
-                            console.error("Chart.js is not loaded. Please check your script import.");
-                            return;
-                        }
-
-                        // Destroy existing chart if needed
-                        if (canvas.chartInstance) {
-                            canvas.chartInstance.destroy();
-                        }
-
-                        // Convert bias object values into an array
-                        const labels = Object.keys(bias);
-                        const dataValues = Object.values(bias);
-
-                        // Create a new chart
-                        canvas.chartInstance = new Chart(canvas, {
-                            type: 'bar',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Bias Score',
-                                    data: dataValues,
-                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                    borderColor: 'rgba(255, 99, 132, 1)',
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false
-                            }
-                        });
-                    },
-                    error: function(err) {
-                        console.error("Error analyzing article:", err);
-                        resultsDiv.html('<span style="color: red;">Failed to analyze article.</span>').fadeIn();
-                    }
-                });
-            }
-
-            $(document).on("click", ".analyze-btn", function() {
-                let button = $(this);
-                let articleDiv = button.closest('.article');
-                let resultsDiv = articleDiv.find('.analysis-results');
-                let chartContainer = articleDiv.find('.chart-container');
-                let canvas = chartContainer.find("canvas")[0];
-
-                let content = button.data("content");
-
-                if (!content.trim()) {
-                    resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
-                    return;
-                }
-
-                $.ajax({
-                    url: '/analyze_article',
-                    type: 'POST',
-                    contentType: "application/json",
-                    data: JSON.stringify({ content: content }),
-                    dataType: 'json',
-                    success: function(response) {
-                        if (!response || !response.sentiment || !response.bias) {
-                            resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
-                            return;
-                        }
-
-                        let sentimentResults = '<strong>Sentiment:</strong><br>';
-                        for (const [key, value] of Object.entries(response.sentiment)) {
-                            sentimentResults += `${key}: ${value}<br>`;
-                        }
-
-                        let biasResults = '<strong>Bias:</strong><br>';
-                        for (const [key, value] of Object.entries(response.bias)) {
-                            biasResults += `${key}: ${value}<br>`;
-                        }
-
-                        resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
-                        chartContainer.show(); 
-
-                        // Destroy existing chart if present
-                        if (canvas.chartInstance) {
-                            canvas.chartInstance.destroy();
-                        }
-
-                        // Create chart
-                        let ctx = canvas.getContext("2d");
-                        canvas.chartInstance = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: Object.keys(response.bias),
-                                datasets: [{
-                                    label: 'Bias Score',
-                                    data: Object.values(response.bias),
-                                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                                    borderColor: 'rgba(255, 99, 132, 1)',
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false
-                            }
-                        });
-                    },
-                    error: function() {
-                        resultsDiv.html('<span style="color: red;">Error analyzing the article.</span>').fadeIn();
-                    }
+        // Fetching articles... here we go!
+        function fetchArticles(query) {
+            $.get('/fetch_articles', { query: query }, function(response) {
+                $('#articles').empty();
+                response.forEach(function(article) {
+                    $('#articles').append(
+                        `<div class="article">
+                            <h3>${article.title}</h3>
+                            <p>${article.content}</p>
+                            <button onclick="analyzeArticle(this, '${article.content.replace(/'/g, "\\'")}')">Analyze</button>
+                            <div class="analysis-results" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px;"></div>
+                        </div>`
+                    );
                 });
             });
-        });
+        }
+
+        // Custom search function
+        function fetchCustomArticles() {
+            const query = $('#customQuery').val();
+            if (query) {
+                $.get('/fetch_articles', { query: query }, function(response) {
+                    $('#articles').empty();
+                    response.forEach(function(article) {
+                        $('#articles').append('<div class="article"><h3>' + article.title + '</h3><p>' + article.content + '</p><button onclick="analyzeArticle(\'' + article.content + '\')">analyze</button></div>');
+                    });
+                });
+            } else {
+                alert("oops! please enter a keyword or text.");
+            }
+        }
+
+        function analyzeArticle(button, content) {
+            let articleDiv = $(button).closest('.article');
+            let resultsDiv = articleDiv.find('.analysis-results');
+            let chartContainer = articleDiv.find('.chart-container');
+
+            // Ensure the chart container and canvas exist
+            if (chartContainer.length === 0) {
+                chartContainer = $("<div class='chart-container'><canvas></canvas></div>");
+                articleDiv.append(chartContainer);
+            }
+
+            let canvas = chartContainer.find("canvas")[0];  // Get the canvas element
+            if (!canvas) {
+                console.error("Canvas element not found for chart");
+                return;
+            }
+
+            // Ensure content is not empty
+            if (!content.trim()) {
+                resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
+                return;
+            }
+
+            $.ajax({
+                url: '/analyze_article',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify({ content: content.replace(/"/g, '\\"') }), // Escape double quotes
+                dataType: 'json',
+                success: function(response) {
+                    if (!response || !response.sentiment || !response.bias) {
+                        resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
+                        return;
+                    }
+
+                    const sentiment = response.sentiment;
+                    const bias = response.bias;
+
+                    let sentimentResults = '<strong>Sentiment:</strong><br>';
+                    for (const [key, value] of Object.entries(sentiment)) {
+                        sentimentResults += `${key}: ${value}<br>`;
+                    }
+
+                    let biasResults = '<strong>Bias:</strong><br>';
+                    for (const [key, value] of Object.entries(bias)) {
+                        biasResults += `${key}: ${value}<br>`;
+                    }
+
+                    resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
+
+                    // Destroy existing chart if it exists to prevent duplicates
+                    if (canvas.chartInstance) {
+                        canvas.chartInstance.destroy();
+                    }
+
+                    // Convert bias object values into an array
+                    const labels = Object.keys(bias);
+                    const dataValues = Object.values(bias);
+
+                    // Create a new chart
+                    canvas.chartInstance = new Chart(canvas, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Bias Score',
+                                data: dataValues,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function(error) {
+                    resultsDiv.html('<span style="color: red;">Error analyzing article.</span>').fadeIn();
+                    console.error("Analysis error:", error);
+                }
+            });
+        }
     </script>
 
-    </script>
 </body>
 </html>
