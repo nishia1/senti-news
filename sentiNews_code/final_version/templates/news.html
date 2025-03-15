@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>senti-news</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* okay, time to make the page look awesome! */
+        body {
+            font-family: arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+    
+        h3 {
+            color: #9e1e02;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background-color: #9e1e02;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            font-size: 18px;
+        }
+
+        .navbar a:hover {
+            background-color: #9e1e02;
+            border-radius: 5px;
+        }
+
+        /* Hero Section with Static Image */
+        .hero-section {
+        position: relative;
+        width: 100%;
+        height: 300px; 
+        background-image: url('https://motionarray.imgix.net/preview-221009-qr45Mrcxf8-high_0000.jpg?w=660&q=60&fit=max&auto=format');       
+         display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white; 
+        text-align: center;
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        opacity: 0.8; 
+}
+
+    
+
+        /* Separate boxed containers */
+        .box-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Smooth Scroll Effect */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Button styles */
+        button {
+            background-color: #9e1e02;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #9e1e02;
+        }
+
+        /* Input box */
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        /* Sentiment Analysis Layout */
+        .analysis-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .input-area textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        .results-area {
+            flex: 0 0 300px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-area h4 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .results-area p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            input[type="text"], button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+        
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/text">Sentiment Analysis</a>
+        <a href="/news">News Articles</a>
+    </div>
+
+    <!-- Hero Section with Image -->
+    <div class="hero-section">
+        <h1>welcome to senti-news!</h1>
+    </div>
+
+    <div class="box-container" id="articles">
+        <p>select a keyword to fetch articles:</p>
+        <button onclick="fetchArticles('politics')">fetch politics articles</button>
+        <button onclick="fetchArticles('technology')">fetch technology articles</button>
+        <button onclick="fetchArticles('sports')">fetch sports articles</button>
+        <button onclick="fetchArticles('economy')">fetch economy articles</button>
+        <button onclick="fetchArticles('health')">fetch health articles</button>
+
+        <!-- or, you know, just type a search term -->
+        <h3>or enter a custom search query:</h3>
+        <input type="text" id="customQuery" placeholder="enter keyword or text" />
+        <button onclick="fetchCustomArticles()">search</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            function analyzeArticle(button, content) {
+                let articleDiv = $(button).closest('.article');
+                let resultsDiv = articleDiv.find('.analysis-results');
+                let chartContainer = articleDiv.find('.chart-container');
+
+                // Ensure the chart container and canvas exist
+                if (chartContainer.length === 0) {
+                    chartContainer = $("<div class='chart-container'><canvas></canvas></div>");
+                    articleDiv.append(chartContainer);
+                }
+
+                let canvas = chartContainer.find("canvas")[0];  
+
+                if (!canvas) {
+                    console.error("Canvas element not found for chart");
+                    return;
+                }
+
+                // Ensure content is not empty
+                if (!content.trim()) {
+                    resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
+                    return;
+                }
+
+                $.ajax({
+                    url: '/analyze_article',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({ content: content }), // Fixed escaping
+                    dataType: 'json',
+                    success: function(response) {
+                        if (!response || !response.sentiment || !response.bias) {
+                            resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
+                            return;
+                        }
+
+                        const sentiment = response.sentiment;
+                        const bias = response.bias;
+
+                        let sentimentResults = '<strong>Sentiment:</strong><br>';
+                        for (const [key, value] of Object.entries(sentiment)) {
+                            sentimentResults += `${key}: ${value}<br>`;
+                        }
+
+                        let biasResults = '<strong>Bias:</strong><br>';
+                        for (const [key, value] of Object.entries(bias)) {
+                            biasResults += `${key}: ${value}<br>`;
+                        }
+
+                        resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
+
+                        // Ensure Chart.js is loaded
+                        if (typeof Chart === "undefined") {
+                            console.error("Chart.js is not loaded. Please check your script import.");
+                            return;
+                        }
+
+                        // Destroy existing chart if needed
+                        if (canvas.chartInstance) {
+                            canvas.chartInstance.destroy();
+                        }
+
+                        // Convert bias object values into an array
+                        const labels = Object.keys(bias);
+                        const dataValues = Object.values(bias);
+
+                        // Create a new chart
+                        canvas.chartInstance = new Chart(canvas, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Bias Score',
+                                    data: dataValues,
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+                    },
+                    error: function(err) {
+                        console.error("Error analyzing article:", err);
+                        resultsDiv.html('<span style="color: red;">Failed to analyze article.</span>').fadeIn();
+                    }
+                });
+            }
+
+            $(document).on("click", ".analyze-btn", function() {
+                let button = $(this);
+                let articleDiv = button.closest('.article');
+                let resultsDiv = articleDiv.find('.analysis-results');
+                let chartContainer = articleDiv.find('.chart-container');
+                let canvas = chartContainer.find("canvas")[0];
+
+                let content = button.data("content");
+
+                if (!content.trim()) {
+                    resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
+                    return;
+                }
+
+                $.ajax({
+                    url: '/analyze_article',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({ content: content }),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (!response || !response.sentiment || !response.bias) {
+                            resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
+                            return;
+                        }
+
+                        let sentimentResults = '<strong>Sentiment:</strong><br>';
+                        for (const [key, value] of Object.entries(response.sentiment)) {
+                            sentimentResults += `${key}: ${value}<br>`;
+                        }
+
+                        let biasResults = '<strong>Bias:</strong><br>';
+                        for (const [key, value] of Object.entries(response.bias)) {
+                            biasResults += `${key}: ${value}<br>`;
+                        }
+
+                        resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
+                        chartContainer.show(); 
+
+                        // Destroy existing chart if present
+                        if (canvas.chartInstance) {
+                            canvas.chartInstance.destroy();
+                        }
+
+                        // Create chart
+                        let ctx = canvas.getContext("2d");
+                        canvas.chartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(response.bias),
+                                datasets: [{
+                                    label: 'Bias Score',
+                                    data: Object.values(response.bias),
+                                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+                    },
+                    error: function() {
+                        resultsDiv.html('<span style="color: red;">Error analyzing the article.</span>').fadeIn();
+                    }
+                });
+            });
+        });
+    </script>
+
+    </script>
+</body>
+</html>

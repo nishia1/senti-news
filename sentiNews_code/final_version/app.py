@@ -5,21 +5,11 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from flair.models import TextClassifier
 from flair.data import Sentence
 from textblob import TextBlob
-from textblob import TextBlob
-import matplotlib.pyplot as plt
-import io
-import base64
 import torch
-import spacy 
-from nltk.sentiment import SentimentIntensityAnalyzer
 
-
-nltk.download('vader_lexicon')
 app = Flask(__name__)
-nlp = spacy.load("en_core_web_trf")
 
-sia = SentimentIntensityAnalyzer()
-print(sia.polarity_scores("This is a terrible mistake!"))  
+
 # initialize the flair sentiment classifier
 flair_classifier = TextClassifier.load('en-sentiment')
 
@@ -117,12 +107,11 @@ def sentiment_analysis_per_sentence(text):
 @app.route('/')
 def home():
     return render_template('index.html')
-@app.route('/text')
-def text():
-    return render_template('text.html')
+
 @app.route('/news')
 def news():
     return render_template('news.html')
+
 # route to fetch articles from API
 @app.route('/fetch_articles', methods=['GET'])
 def fetch_articles_route():
@@ -131,49 +120,47 @@ def fetch_articles_route():
     return jsonify(articles)
 
 # route to analyze the article's content for sentiment and bias
+
 @app.route('/analyze_article', methods=['POST'])
-def analyze_article_route():
-    content = request.json.get('content', '')
-    sentiment_results, political_bias_results = sentiment_analysis_per_sentence(content)
-    return jsonify({
-        'sentiment': sentiment_results,
-        'bias': political_bias_results
-    })
+def analyze_article():
+    try:
+        data = request.get_json()
+        content = data.get("content", "").strip()
+
+        if not content:
+            return jsonify({"error": "No content provided"}), 400
+
+        # Sentiment Analysis
+        sentiment_analysis = TextBlob(content).sentiment
+        sentiment = {
+            "polarity": sentiment_analysis.polarity,
+            "subjectivity": sentiment_analysis.subjectivity
+        }
+
+        # Fake bias detection (replace with actual model)
+        bias = {
+            "left_bias": round(sentiment_analysis.polarity + 0.1, 2),
+            "right_bias": round(1 - sentiment_analysis.polarity, 2)
+        }
+
+        return jsonify({"sentiment": sentiment, "bias": bias})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    text = request.form['text']
-    blob = TextBlob(text)
-    sentiment = blob.sentiment.polarity
-    subjectivity = blob.sentiment.subjectivity
+    text = request.form['text']  
+    blob = TextBlob(text)       
+    sentiment = blob.sentiment.polarity  
+    subjectivity = blob.sentiment.subjectivity 
 
     if sentiment > 0:
-        result = 'Positive'
+        result = 'Positive' 
     elif sentiment < 0:
         result = 'Negative'
     else:
         result = 'Neutral'
-
-    doc = nlp(text)
-    negative_words = []
-    for token in doc:
-        word = token.text.strip()  
-        if word and word.isalpha(): 
-            sentiment_score = sia.polarity_scores(word)['compound']
-            if sentiment_score < -0.2:  
-                negative_words.append({
-                    "word": word,
-                    "sentiment": sentiment_score
-                })
-       
-    return jsonify({
-        'textblob_sentiment': result,
-        'textblob_polarity': sentiment,
-        'textblob_subjectivity': subjectivity,
-        'spacy_negative_phrases': negative_words,
-        'original_text': text
-    })
-
-
 
     return jsonify({'sentiment': result, 'polarity': sentiment, 'subjectivity': subjectivity})
 
