@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>senti-news</title>
+    <title>Senti-News</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* okay, time to make the page look awesome! */
         body {
-            font-family: arial, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             color: #333;
         }
 
-    
-        h3 {
+        h1, h2, h3 {
             color: #9e1e02;
         }
 
-        /* Navigation Bar */
         .navbar {
             background-color: #9e1e02;
             padding: 15px;
@@ -35,29 +32,25 @@
         }
 
         .navbar a:hover {
-            background-color: #9e1e02;
+            background-color: #7c1d1b;
             border-radius: 5px;
         }
 
-        /* Hero Section with Static Image */
         .hero-section {
-        position: relative;
-        width: 100%;
-        height: 300px; 
-        background-image: url('https://motionarray.imgix.net/preview-221009-qr45Mrcxf8-high_0000.jpg?w=660&q=60&fit=max&auto=format');       
-         display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white; 
-        text-align: center;
-        background-repeat: no-repeat;
-        background-size: 100% auto;
-        opacity: 0.8; 
-}
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-image: url('https://motionarray.imgix.net/preview-221009-qr45Mrcxf8-high_0000.jpg?w=660&q=60&fit=max&auto=format');
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            opacity: 0.8;
+        }
 
-    
-
-        /* Separate boxed containers */
         .box-container {
             max-width: 800px;
             margin: 20px auto;
@@ -68,12 +61,10 @@
             text-align: center;
         }
 
-        /* Smooth Scroll Effect */
         html {
             scroll-behavior: smooth;
         }
 
-        /* Button styles */
         button {
             background-color: #9e1e02;
             color: white;
@@ -87,10 +78,9 @@
         }
 
         button:hover {
-            background-color: #9e1e02;
+            background-color: #7c1d1b;
         }
 
-        /* Input box */
         input[type="text"] {
             padding: 10px;
             font-size: 16px;
@@ -100,7 +90,6 @@
             border: 1px solid #ccc;
         }
 
-        /* Sentiment Analysis Layout */
         .analysis-container {
             display: flex;
             justify-content: space-between;
@@ -142,203 +131,102 @@
                 margin: 5px 0;
             }
         }
-        
+
         .chart-container {
             width: 100%;
             max-width: 400px;
             height: 300px;
             margin-top: 10px;
         }
+
+        .why-senti-news {
+            background-color: #fff;
+            padding: 30px;
+            max-width: 800px;
+            margin: 40px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .why-senti-news h1 {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .why-senti-news p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .why-senti-news ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .why-senti-news ul li {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .current-date-time {
+            text-align: center;
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            background-color: #f2f2f2;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
     <div class="navbar">
         <a href="/">Home</a>
         <a href="/text">Sentiment Analysis</a>
         <a href="/news">News Articles</a>
     </div>
 
-    <!-- Hero Section with Image -->
     <div class="hero-section">
         <h1>welcome to senti-news!</h1>
     </div>
-    
 
-
-
-    <div class="box-container" id="sentiment">
-        <h3>Enter your own text for sentiment analysis:</h3>
-        <div class="analysis-container">
-            <div class="input-area">
-                <textarea id="userText" placeholder="Enter text for sentiment analysis..." rows="6"></textarea>
-                <button onclick="analyzeUserText()">Analyze Text</button>
-            </div>
-            <div class="results-area" id="userAnalysisResult">
-                <h4>Analysis Results</h4>
-            </div>
-        </div>
+    <div class="current-date-time" id="current-time">
     </div>
 
-    <div class="box-container" id="articles">
-        <p>select a keyword to fetch articles:</p>
-        <button onclick="fetchArticles('politics')">fetch politics articles</button>
-        <button onclick="fetchArticles('technology')">fetch technology articles</button>
-        <button onclick="fetchArticles('sports')">fetch sports articles</button>
-        <button onclick="fetchArticles('economy')">fetch economy articles</button>
-        <button onclick="fetchArticles('health')">fetch health articles</button>
-
-        <!-- or, you know, just type a search term -->
-        <h3>or enter a custom search query:</h3>
-        <input type="text" id="customQuery" placeholder="enter keyword or text" />
-        <button onclick="fetchCustomArticles()">search</button>
+    <div class="why-senti-news">
+        <h1>Why did we choose to make Senti-News?</h1>
+        <p>We created Sentinews to:</p>
+        <ol>
+            <li>Address bias in news by helping readers analyze articles and understand different political or ideological perspectives.</li>
+            <li>Provide automated news analysis using AI and natural language processing, categorizing content based on sentiment, bias, or subject matter for a more efficient reading experience.</li>
+            <li>Improve media literacy by offering insights into the biases and sentiments behind news articles, promoting a more informed and critical society.</li>
+            <li>Fill a gap in the market by offering detailed, user-friendly news analysis, focusing on providing a deeper understanding of content’s perspective and bias that other tools may overlook.</li>
+        </ol>
     </div>
 
     <script>
-        // fetching articles... here we gooo!
-        function fetchArticles(query) {
-            $.get('/fetch_articles', { query: query }, function(response) {
-                $('#articles').empty();
-                response.forEach(function(article) {
-                    $('#articles').append(
-                        `<div class="article">
-                            <h3>${article.title}</h3>
-                            <p>${article.content}</p>
-                            <button onclick="analyzeArticle(this, '${article.content.replace(/'/g, "\\'")}')">Analyze</button>
-                            <div class="analysis-results" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px;"></div>
-                        </div>`
-                    );
-                });
-            });
+        function updateCurrentDateTime() {
+            const currentDateTime = new Date();
+            const formattedDate = currentDateTime.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const formattedTime = currentDateTime.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+            document.getElementById('current-time').innerHTML = `${formattedDate} | ${formattedTime}`;
         }
 
-        // custom search, just for you, buddy
-        function fetchCustomArticles() {
-            const query = $('#customQuery').val();
-            if (query) {
-                $.get('/fetch_articles', { query: query }, function(response) {
-                    $('#articles').empty();
-                    response.forEach(function(article) {
-                        $('#articles').append('<div class="article"><h3>' + article.title + '</h3><p>' + article.content + '</p><button onclick="analyzeArticle(\'' + article.content + '\')">analyze</button></div>');
-                    });
-                });
-            } else {
-                alert("oops! please enter a keyword or text.");
-            }
-        }
-
-        function analyzeArticle(button, content) {
-            let articleDiv = $(button).closest('.article');
-            let resultsDiv = articleDiv.find('.analysis-results');
-            let chartContainer = articleDiv.find('.chart-container');
-
-            // Ensure the chart container and canvas exist
-            if (chartContainer.length === 0) {
-                chartContainer = $("<div class='chart-container'><canvas></canvas></div>");
-                articleDiv.append(chartContainer);
-            }
-
-            let canvas = chartContainer.find("canvas")[0];  // Get the canvas element
-            if (!canvas) {
-                console.error("Canvas element not found for chart");
-                return;
-            }
-
-            // Ensure content is not empty
-            if (!content.trim()) {
-                resultsDiv.html('<span style="color: red;">Article content is empty.</span>').fadeIn();
-                return;
-            }
-
-            $.ajax({
-                url: '/analyze_article',
-                type: 'POST',
-                contentType: "application/json",
-                data: JSON.stringify({ content: content.replace(/"/g, '\\"') }), // Escape double quotes
-                dataType: 'json',
-                success: function(response) {
-                    if (!response || !response.sentiment || !response.bias) {
-                        resultsDiv.html('<span style="color: red;">No analysis results available.</span>').fadeIn();
-                        return;
-                    }
-
-                    const sentiment = response.sentiment;
-                    const bias = response.bias;
-
-                    let sentimentResults = '<strong>Sentiment:</strong><br>';
-                    for (const [key, value] of Object.entries(sentiment)) {
-                        sentimentResults += `${key}: ${value}<br>`;
-                    }
-
-                    let biasResults = '<strong>Bias:</strong><br>';
-                    for (const [key, value] of Object.entries(bias)) {
-                        biasResults += `${key}: ${value}<br>`;
-                    }
-
-                    resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
-
-                    // Destroy existing chart if it exists to prevent duplicates
-                    if (canvas.chartInstance) {
-                        canvas.chartInstance.destroy();
-                    }
-
-                    // Convert bias object values into an array
-                    const labels = Object.keys(bias);
-                    const dataValues = Object.values(bias);
-
-                    // Create a new chart
-                    canvas.chartInstance = new Chart(canvas, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Bias Score',
-                                data: dataValues,
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                },
-                error: function(error) {
-                    resultsDiv.html('<span style="color: red;">Error analyzing article.</span>').fadeIn();
-                    console.error("Analysis error:", error);
-                }
-            });
-        }
-        function analyzeUserText() {
-            const userText = $('#userText').val();
-            if (userText) {
-                $.post('/analyze', { 'text': userText })
-                .done(function(response) {
-                    let result = `<div class="alert alert-info">
-                        <p><strong>Sentiment:</strong> ${response.sentiment}</p>
-                        <p><strong>Polarity:</strong> ${response.polarity}</p>
-                        <p><strong>Subjectivity:</strong> ${response.subjectivity}</p>
-                    </div>`;
-                    $('#userAnalysisResult').html(result);
-                })
-                .fail(function(error) {
-                    alert('Error analyzing text: ' + error);
-                });
-            } else {
-                alert("Please enter some text for analysis.");
-            }
-        }
-
-    
+        updateCurrentDateTime();
+        setInterval(updateCurrentDateTime, 1000);
     </script>
 
-    </script>
 </body>
 </html>
