@@ -168,10 +168,11 @@
     </div>
 
     <script>
-        // Fetching articles... here we go!
         function fetchArticles(query) {
             $.get('/fetch_articles', { query: query }, function(response) {
-                $('#articles').empty();
+                // Clear only the articles, keeping buttons and input field
+                $('.article').remove(); 
+
                 response.forEach(function(article) {
                     $('#articles').append(
                         `<div class="article">
@@ -185,21 +186,27 @@
             });
         }
 
-        // Custom search function
         function fetchCustomArticles() {
             const query = $('#customQuery').val();
             if (query) {
                 $.get('/fetch_articles', { query: query }, function(response) {
-                    $('#articles').empty();
+                    $('.article').remove();  // Remove only articles, not buttons or input
+
                     response.forEach(function(article) {
-                        $('#articles').append('<div class="article"><h3>' + article.title + '</h3><p>' + article.content + '</p><button onclick="analyzeArticle(\'' + article.content + '\')">analyze</button></div>');
+                        $('#articles').append(
+                            `<div class="article">
+                                <h3>${article.title}</h3>
+                                <p>${article.content}</p>
+                                <button onclick="analyzeArticle(this, '${article.content.replace(/'/g, "\\'")}')">Analyze</button>
+                                <div class="analysis-results" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px;"></div>
+                            </div>`
+                        );
                     });
                 });
             } else {
-                alert("oops! please enter a keyword or text.");
+                alert("Oops! Please enter a keyword or text.");
             }
         }
-
         function analyzeArticle(button, content) {
             let articleDiv = $(button).closest('.article');
             let resultsDiv = articleDiv.find('.analysis-results');
