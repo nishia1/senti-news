@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>senti-news</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Styling for the page */
         body {
-            font-family: arial, sans-serif;
+            font-family: Georgia, serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
@@ -19,8 +18,6 @@
         h3 {
             color: #9e1e02;
         }
-
-        /* Navigation Bar */
         .navbar {
             background-color: #9e1e02;
             padding: 15px;
@@ -38,8 +35,6 @@
             background-color: #9e1e02;
             border-radius: 5px;
         }
-
-        /* Hero Section with Static Image */
         .hero-section {
             position: relative;
             width: 100%;
@@ -54,9 +49,8 @@
             background-size: 100% auto;
             opacity: 0.8; 
         }
-
-        /* Separate boxed containers */
         .box-container {
+            font-family: Georgia, serif;
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
@@ -65,8 +59,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-
-        /* Button styles */
         button {
             background-color: #9e1e02;
             color: white;
@@ -83,7 +75,6 @@
             background-color: #9e1e02;
         }
 
-        /* Input box */
         input[type="text"] {
             padding: 10px;
             font-size: 16px;
@@ -93,7 +84,6 @@
             border: 1px solid #ccc;
         }
 
-        /* Sentiment Analysis Layout */
         .analysis-container {
             display: flex;
             justify-content: space-between;
@@ -142,6 +132,33 @@
             height: 300px;
             margin-top: 10px;
         }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .text-container {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            max-width: 100%;
+            width: 300px; /* Adjust as needed */
+            height: 200px;
+        }
+
+
     </style>
 </head>
 <body>
@@ -154,13 +171,14 @@
     </div>
 
     <div class="box-container" id="articles">
-        <p>select a keyword to fetch articles:</p>
-        <button onclick="fetchArticles('politics')">fetch politics articles</button>
-        <button onclick="fetchArticles('technology')">fetch technology articles</button>
-        <button onclick="fetchArticles('sports')">fetch sports articles</button>
-        <button onclick="fetchArticles('economy')">fetch economy articles</button>
-        <button onclick="fetchArticles('health')">fetch health articles</button>
-
+        <p>Select A News Article Category:</p>
+        <button>All</button>
+        <button onclick="fetchArticles('politics')">Politics</button>
+        <button onclick="fetchArticles('technology')">Technology</button>
+        <button onclick="fetchArticles('sports')">Sports</button>
+        <button onclick="fetchArticles('economy')">Economy</button>
+        <button onclick="fetchArticles('health')">Health</button>
+        
         <!-- or, you know, just type a search term -->
         <h3>or enter a custom search query:</h3>
         <input type="text" id="customQuery" placeholder="enter keyword or text" />
@@ -174,11 +192,12 @@
                 $('.article').remove(); 
 
                 response.forEach(function(article) {
+                    article.content = article.content.replace(/(\r\n|\n|\r)/gm, "")
                     $('#articles').append(
                         `<div class="article">
                             <h3>${article.title}</h3>
                             <p>${article.content}</p>
-                            <button onclick="analyzeArticle(this, '${article.content.replace(/'/g, "\\'")}')">Analyze</button>
+                            <button onclick="analyzeArticle(this, '${article.content.replace(/[^a-zA-Z0-9\s]/g, '')}')">Analyze</button>
                             <div class="analysis-results" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px;"></div>
                         </div>`
                     );
@@ -210,19 +229,6 @@
         function analyzeArticle(button, content) {
             let articleDiv = $(button).closest('.article');
             let resultsDiv = articleDiv.find('.analysis-results');
-            let chartContainer = articleDiv.find('.chart-container');
-
-            // Ensure the chart container and canvas exist
-            if (chartContainer.length === 0) {
-                chartContainer = $("<div class='chart-container'><canvas></canvas></div>");
-                articleDiv.append(chartContainer);
-            }
-
-            let canvas = chartContainer.find("canvas")[0];  // Get the canvas element
-            if (!canvas) {
-                console.error("Canvas element not found for chart");
-                return;
-            }
 
             // Ensure content is not empty
             if (!content.trim()) {
@@ -247,34 +253,51 @@
 
                     let sentimentResults = '<strong>Sentiment:</strong><br>';
                     for (const [key, value] of Object.entries(sentiment)) {
-                        sentimentResults += `${key}: ${value}<br>`;
+                        sentimentResults += `${key}: ${value} <br>`; 
                     }
 
-                    let biasResults = '<strong>Bias:</strong><br>';
+                    let biasResults = '<strong>Political Bias:</strong><br>';
                     for (const [key, value] of Object.entries(bias)) {
-                        biasResults += `${key}: ${value}<br>`;
+                        biasResults += `${key}: ${value} <br>`; 
                     }
 
-                    resultsDiv.html(sentimentResults + "<br>" + biasResults).fadeIn();
+                    // Remove existing chart containers before creating new ones
+                    articleDiv.find('.chart-container').remove();
 
-                    // Destroy existing chart if it exists to prevent duplicates
-                    if (canvas.chartInstance) {
-                        canvas.chartInstance.destroy();
+                    // Create a grid container
+                    let gridContainer = $(`
+                        <div class="grid-container">
+                            <div class="grid-item">
+                                <div class="text-container">${sentimentResults}</div>
+                                <canvas id="sentimentChart-${Date.now()}"></canvas>
+                            </div>
+                            <div class="grid-item">
+                                <div class="text-container">${biasResults}</div>
+                                <canvas id="biasChart-${Date.now()}"></canvas>
+                            </div>
+                        </div>
+                    `);
+
+                    articleDiv.append(gridContainer);
+
+                    let sentimentCanvas = gridContainer.find("canvas")[0];
+                    let biasCanvas = gridContainer.find("canvas")[1];
+
+                    // Ensure chart elements exist
+                    if (!sentimentCanvas || !biasCanvas) {
+                        console.error("Canvas elements not found");
+                        return;
                     }
 
-                    // Convert bias object values into an array
-                    const labels = Object.keys(bias);
-                    const dataValues = Object.values(bias);
-
-                    // Create a new chart
-                    canvas.chartInstance = new Chart(canvas, {
+                    // Create Sentiment Chart
+                    new Chart(sentimentCanvas.getContext('2d'), {
                         type: 'bar',
                         data: {
-                            labels: labels,
+                            labels: Object.keys(sentiment),
                             datasets: [{
-                                label: 'Bias Score',
-                                data: dataValues,
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                label: 'Sentiment Analysis',
+                                data: Object.values(sentiment),
+                                backgroundColor: ['red', 'yellow', 'green'],
                                 borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 1
                             }]
@@ -282,19 +305,31 @@
                         options: {
                             responsive: true,
                             scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
+                                y: { beginAtZero: true }
                             }
                         }
                     });
-                },
-                error: function(error) {
-                    resultsDiv.html('<span style="color: red;">Error analyzing article.</span>').fadeIn();
-                    console.error("Analysis error:", error);
+
+                    // Create Bias Chart
+                    new Chart(biasCanvas.getContext('2d'), {
+                        type: 'pie',
+                        data: {
+                            labels: Object.keys(bias),
+                            datasets: [{
+                                label: 'Bias Analysis',
+                                data: Object.values(bias),
+                                backgroundColor: ['green', 'blue', 'red']
+                            }]
+                        },
+                        options: {
+                            responsive: true
+                        }
+                    });
                 }
             });
         }
+
+
     </script>
 
 </body>

@@ -12,6 +12,7 @@ import base64
 import torch
 import spacy 
 from nltk.sentiment import SentimentIntensityAnalyzer
+import re
 
 
 nltk.download('vader_lexicon')
@@ -70,11 +71,10 @@ def split_sentences(text):
     return nltk.sent_tokenize(text)
 
 # function for sentiment analysis using flair
-def flair_subjectivity(text):
+def flair_sentiment(text):
     sentence = Sentence(text)
     flair_classifier.predict(sentence)
-    score = sentence.labels[0].score
-    return "subjective" if score > 0.5 else "objective"
+    return sentence.labels[0].to_dict()['value'] 
 
 # function for political bias detection (using politicalBiasBERT)
 def political_bias(text):
@@ -92,7 +92,7 @@ def sentiment_analysis_per_sentence(text):
     political_bias_results = {"left": 0, "center": 0, "right": 0}
     
     for sentence in sentences:
-        sentiment = flair_subjectivity(sentence)
+        sentiment = flair_sentiment(sentence).lower()
         bias = political_bias(sentence)
         
         # tally sentiment
@@ -136,6 +136,7 @@ def fetch_articles_route():
 @app.route('/analyze_article', methods=['POST'])
 def analyze_article_route():
     content = request.json.get('content', '')
+    content = re.sub(r'[^a-zA-Z0-9\s]', '', content)
     sentiment_results, political_bias_results = sentiment_analysis_per_sentence(content)
     return jsonify({
         'sentiment': sentiment_results,
