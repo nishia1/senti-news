@@ -5,7 +5,7 @@ SentiNews is a sentiment analysis tool designed to evaluate political bias and s
 ## Project Structure  
 
 ### **Folders**  
-- **`nlp-testing/`** – Contains all testing code and experiments with different NLP libraries. Notes will be added to the README/file area by the end of December.  
+- **`nlp-testing/`** – Contains all testing code and experiments with different NLP libraries.
 - **`senti_news_code/`** – Deployable version of the project. This is the main folder to view for production code. Has individual work and final version is contained in final_version
 
 ### **Backend**  
