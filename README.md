@@ -1,16 +1,25 @@
-# SentiNews
-bloomberg!!!
+# SentiNews  
 
-folder 1: nlp-testing
-* all of the testing code and messing w diff libraries
-* (my baby & relearning py analysis tools - oops)
-* see notes in read.me/file area (will be added by christmas break, tbd)
-* still messing w some other libraries
+SentiNews is a sentiment analysis tool designed to evaluate political bias and subjectivity in news articles.  
 
-folder 2: senti_news_code :):):)
-* aka deployable code
-* backend composed of flair (i think for subjectivity, its been ok, we'll keep using until i can employ widescale testing with 15 or more articles, currently at 5), politicalbert
-* front-end (TBD)
-work in progress, check back early jan!! :)
+## Project Structure  
 
-gitignore file --> virtual env to run older python version 
+### **Folders**  
+- **`nlp-testing/`** – Contains all testing code and experiments with different NLP libraries. Notes will be added to the README/file area by the end of December.  
+- **`senti_news_code/`** – Deployable version of the project. This is the main folder to view for production code. Has individual work and final version is contained in final_version
+
+### **Backend**  
+- **Libraries:** Flair, PoliticalBiasBERT, spaCy, TextBlob  
+- **API:** Connected via a Flair-based API  
+
+### **Frontend**  
+- **Technologies:** HTML, CSS, JavaScript  
+
+## Setup Instructions  
+
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/yourusername/SentiNews.git
+   cd SentiNews
+3. Set up venv environment to run it & run requirements file
+4. Run app.py file in venv environment & navigate to local server link
